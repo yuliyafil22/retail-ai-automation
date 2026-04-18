@@ -80,10 +80,10 @@ def send_order(order_data, order_name):
 
 # ТЕСТ 1: Средний заказ с рискованным комментарием
 order_medium_risk = {
-    "firstName": "Айнурррррр7",
+    "firstName": "Коллега",
     "lastName": "Тестировщик",
-    "phone": "+77770000101",
-    "email": "test.medium21@example.com",
+    "phone": "+77770002001",
+    "email": "test.medium55@example.com",
     "orderType": "eshop-individual",
     "orderMethod": "shopping-cart",
     "status": "new",
@@ -113,10 +113,10 @@ order_medium_risk = {
 
 # ТЕСТ 2: VIP заказ
 order_vip = {
-    "firstName": "Вип5",
+    "firstName": "Випппппп",
     "lastName": "Клиенттттт",
-    "phone": "+77770000102",
-    "email": "test.vip12@example.com",
+    "phone": "+77770500102",
+    "email": "test.vip5@example.com",
     "orderType": "eshop-individual",
     "orderMethod": "shopping-cart",
     "status": "new",
@@ -146,10 +146,10 @@ order_vip = {
 
 # ТЕСТ 3: Проблемный заказ
 order_problem = {
-    "firstName": "Проблемныййд",
+    "firstName": "Проблемныйййййй",
     "lastName": "Клиент",
-    "phone": "+77770000103",
-    "email": "test.problem12@example.com",
+    "phone": "+77775000103",
+    "email": "test.problem8@example.com",
     "orderType": "eshop-individual",
     "orderMethod": "shopping-cart",
     "status": "new",
@@ -174,10 +174,10 @@ order_problem = {
 
 # ТЕСТ 4: Маленький заказ
 order_small = {
-    "firstName": "Новыййн",
+    "firstName": "Новыйййй",
     "lastName": "Клиент",
-    "phone": "+77770000104",
-    "email": "test.small12@example.com",
+    "phone": "+77770000154",
+    "email": "test.small9@example.com",
     "orderType": "eshop-individual",
     "orderMethod": "shopping-cart",
     "status": "new",
