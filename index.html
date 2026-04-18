@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retail AI Automation | Дашборд</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c10;
+      --surface: #0e1520;
+      --border: #1a2535;
+      --accent: #00e5ff;
+      --accent2: #7b61ff;
+      --accent3: #00ff9d;
+      --text: #e8edf5;
+      --muted: #5a6a80;
+      --card: #111827;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--accent2); top: -200px; right: -200px; }
+    .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: -100px; left: -100px; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,12,16,0.8);
+      backdrop-filter: blur(20px);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo span {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-badge {
+      font-size: 0.7rem;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.3);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    /* SECTIONS */
+    section { position: relative; z-index: 1; }
+
+    /* HERO */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 48px 80px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent3);
+      border: 1px solid rgba(0,255,157,0.2);
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      background: rgba(0,255,157,0.05);
+    }
+
+    .hero-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent3);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent3);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin-bottom: 32px;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--accent);
+    }
+
+    .hero-desc {
+      max-width: 560px;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 500;
+    }
+    .btn-primary:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 40px 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .kpi-card {
+      background: #111827;
+      border: 1px solid #1a2535;
+      padding: 24px;
+      border-radius: 10px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .kpi-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: #5a6a80;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #00e5ff;
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* AI SIGNALS */
+    .ai-signals {
+      padding: 40px 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .ai-signals h2, .orders h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .signals-grid {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .signal-card {
+      padding: 18px 28px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+      border: 1px solid transparent;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .danger { background: rgba(255,0,0,0.12); border-color: rgba(255,0,0,0.2); color: #ff6b6b; }
+    .warning { background: rgba(255,165,0,0.12); border-color: rgba(255,165,0,0.2); color: #ffb347; }
+    .success { background: rgba(0,255,157,0.12); border-color: rgba(0,255,157,0.2); color: #00ff9d; }
+
+    .ai-recommendations {
+      background: rgba(0,229,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 28px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-line;
+      color: var(--accent);
+    }
+
+    /* ORDERS SECTION */
+    .orders {
+      padding: 40px 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    #orders-list {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid #1a2535;
+      transition: background 0.2s;
+    }
+    .order-row:last-child { border-bottom: none; }
+    .order-row:hover { background: rgba(0,229,255,0.03); }
+
+    .order-id { font-weight: 500; color: var(--accent); }
+    .order-sum { font-family: 'DM Mono', monospace; }
+    .order-name { color: var(--muted); }
+
+    /* FEATURES & OTHER SECTIONS */
+    .features {
+      padding: 120px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      margin-bottom: 80px;
+    }
+
+    .section-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .feature-card {
+      background: var(--card);
+      padding: 40px;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { background: #151e2e; }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feature-list li {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .feature-list li::before {
+      content: '→';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tech {
+      padding: 80px 48px 120px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 48px;
+    }
+
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .tech-pill:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+      background: rgba(123,97,255,0.05);
+    }
+
+    .tech-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .compare {
+      padding: 80px 48px 120px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 48px;
+    }
+
+    .compare-table th {
+      background: var(--surface);
+      padding: 20px 28px;
+      text-align: left;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-table th:first-child { color: var(--text); }
+
+    .compare-table td {
+      padding: 18px 28px;
+      font-size: 0.82rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { color: var(--text); font-weight: 500; }
+
+    .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge-base {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      background: rgba(90,106,128,0.15);
+      color: var(--muted);
+      border: 1px solid rgba(90,106,128,0.2);
+    }
+
+    .badge-ai {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      background: rgba(0,229,255,0.08);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,255,0.2);
+    }
+
+    .endpoints {
+      padding: 80px 48px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .endpoint-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .endpoint-item:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+      background: #151e2e;
+    }
+
+    .method {
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(0,255,157,0.1);
+      color: var(--accent3);
+      border: 1px solid rgba(0,255,157,0.2);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .endpoint-path {
+      font-size: 0.88rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .endpoint-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-left {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-right a {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-right a:hover { color: var(--accent); }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeIn 0.7s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links, .nav-badge { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 24px; }
+      .ai-signals, .orders { padding: 20px 24px; }
+      .signals-grid { flex-direction: column; }
+      .features, .tech, .compare, .endpoints { padding-left: 24px; padding-right: 24px; }
+      .features-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 20px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <nav>
+    <div class="nav-logo">
+      <span></span>
+      RETAIL AI
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">Возможности</a></li>
+      <li><a href="#stack">Стек</a></li>
+      <li><a href="#api">API</a></li>
+    </ul>
+    <div class="nav-badge">v1.0.0 · Live Dashboard</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-tag fade-in">Intelligent Automation Platform</div>
+    <h1 class="fade-in">
+      RETAIL<br><em>AI</em><br>AUTOMATION
+    </h1>
+    <p class="hero-desc fade-in">
+      Интеллектуальная система автоматизации для интернет-магазинов.<br>
+      AI-ассистент · Telegram Bot · Real-time аналитика
+    </p>
+    <div class="hero-cta fade-in">
+      <a href="/api/stats" class="btn btn-primary">→ /api/stats</a>
+      <a href="/api/test" class="btn btn-ghost">Проверить API</a>
+    </div>
+  </section>
+
+  <!-- 🔥 НОВЫЙ KPI БЛОК (вместо старого stats-bar) -->
+  <section class="kpi">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Выручка сегодня</div>
+        <div class="kpi-value" id="kpi-revenue">— ₸</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Заказы</div>
+        <div class="kpi-value" id="kpi-orders">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Средний чек</div>
+        <div class="kpi-value" id="kpi-avg">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">VIP клиенты</div>
+        <div class="kpi-value" id="kpi-vip">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⚠️ AI СИГНАЛЫ (киллер-фича) -->
+  <section class="ai-signals">
+    <h2>AI Сигналы</h2>
+    <div class="signals-grid">
+      <div class="signal-card danger">⚠️ Риск отмены: <span id="risk-count">0</span></div>
+      <div class="signal-card warning">🔥 Требуют внимания: <span id="attention-count">0</span></div>
+      <div class="signal-card success">⭐ VIP клиенты: <span id="vip-count">0</span></div>
+    </div>
+    <div class="ai-recommendations" id="ai-recommendations">🤖 Анализ загружается...</div>
+  </section>
+
+  <!-- 📦 ПОСЛЕДНИЕ ЗАКАЗЫ (как mini-CRM) -->
+  <section class="orders">
+    <h2>Последние заказы</h2>
+    <div id="orders-list">
+      <div class="order-row" style="justify-content: center; color: var(--muted);">Загрузка заказов...</div>
+    </div>
+  </section>
+
+  <!-- Остальной контент -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <span class="section-tag">// Возможности</span>
+      <h2 class="section-title">Всё что нужно<br>для автоматизации</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🤖</span>
+        <div class="feature-title">AI-Ассистент</div>
+        <ul class="feature-list">
+          <li>Анализ заказов в реальном времени</li>
+          <li>Персональные рекомендации товаров</li>
+          <li>Прогнозирование поведения клиентов</li>
+          <li>Автоматическая категоризация</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📱</span>
+        <div class="feature-title">Telegram Bot</div>
+        <ul class="feature-list">
+          <li>Уведомления о новых заказах</li>
+          <li>Поиск и управление заказами</li>
+          <li>Клиентская поддержка с AI</li>
+          <li>Административная панель</li>
+        </ul>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔄</span>
+        <div class="feature-title">Автоматизация</div>
+        <ul class="feature-list">
+          <li>Webhook интеграции с CRM</li>
+          <li>Автоматические воронки продаж</li>
+          <li>Real-time аналитика</li>
+          <li>Интеграция с внешними сервисами</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="tech" id="stack">
+    <div class="section-header">
+      <span class="section-tag">// Технологический стек</span>
+      <h2 class="section-title">Построено на<br>лучших инструментах</h2>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-pill"><span class="tech-dot" style="background:#3776ab"></span>Python</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#000"></span>Flask / FastAPI</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#3ecf8e"></span>Supabase</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#74aa9c"></span>PostgreSQL</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#00a67e"></span>OpenAI GPT-4</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#cc785c"></span>Anthropic Claude</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#e04444"></span>RetailCRM</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#000"></span>Vercel</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#ea4b71"></span>n8n</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#a259ff"></span>Make.com</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#2ca5e0"></span>Telegram Bot API</div>
+      <div class="tech-pill"><span class="tech-dot" style="background:#f7df1e"></span>Node.js</div>
+    </div>
+  </section>
+
+  <section class="compare" id="compare">
+    <div class="section-header">
+      <span class="section-tag">// Сравнение</span>
+      <h2 class="section-title">Отличия от<br>базового проекта</h2>
+    </div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Функция</th><th>Базовый проект</th><th>AI Automation</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Данные</td><td><span class="badge-base">Статический дашборд</span></td><td><span class="badge-ai">Real-time обработка</span></td></tr>
+        <tr><td>Интерфейс</td><td><span class="badge-base">Web dashboard</span></td><td><span class="badge-ai">Telegram bot</span></td></tr>
+        <tr><td>Логика</td><td><span class="badge-base">Аналитика</span></td><td><span class="badge-ai">AI + Автоматизация</span></td></tr>
+        <tr><td>Интеграции</td><td><span class="badge-base">Только чтение</span></td><td><span class="badge-ai">Двусторонние webhook'и</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="endpoints" id="api">
+    <div class="section-header">
+      <span class="section-tag">// API Endpoints</span>
+      <h2 class="section-title">Serverless<br>функции</h2>
+    </div>
+    <a href="/api/test" class="endpoint-item">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/api/test</span>
+      <span class="endpoint-desc">Проверка работоспособности</span>
+    </a>
+    <a href="/api/stats" class="endpoint-item">
+      <span class="method">GET</span>
+      <span class="endpoint-path">/api/stats</span>
+      <span class="endpoint-desc">Статистика заказов за сегодня</span>
+    </a>
+    <a href="/api/sync-orders" class="endpoint-item">
+      <span class="method">POST</span>
+      <span class="endpoint-path">/api/sync-orders</span>
+      <span class="endpoint-desc">Синхронизация заказов с CRM</span>
+    </a>
+  </section>
+
+  <footer>
+    <div class="footer-left">© 2026 Retail AI Automation · Built on Vercel</div>
+    <div class="footer-right">
+      <a href="/api/stats">Stats</a>
+      <a href="/api/test">Test</a>
+      <a href="https://github.com">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    // Основная логика дашборда + AI сигналы + последние заказы
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+
+        // KPI блок
+        document.getElementById('kpi-revenue').innerText =
+          new Intl.NumberFormat('ru-RU').format(data.total || 0) + ' ₸';
+        document.getElementById('kpi-orders').innerText = data.orders ?? '0';
+        document.getElementById('kpi-avg').innerText = Math.round(data.avg || 0);
+        document.getElementById('kpi-vip').innerText = data.vip ?? '0';
+
+        // AI Сигналы
+        document.getElementById('risk-count').innerText = data.risk ?? '0';
+        document.getElementById('attention-count').innerText = data.attention ?? '0';
+        document.getElementById('vip-count').innerText = data.vip ?? '0';
+
+        // AI рекомендации (умные подсказки)
+        let rec = [];
+        if (data.risk > 0) rec.push("⚠️ Есть риск отмены заказов — проверьте статусы");
+        if (data.attention > 0) rec.push("🔥 Требуется обработка заказов — возьмите в работу");
+        if (data.vip > 0) rec.push("⭐ Обработай VIP клиентов приоритетно — высокая лояльность");
+        if (!rec.length) rec.push("✅ Все стабильно. AI аналитика не фиксирует проблем.");
+
+        document.getElementById('ai-recommendations').innerHTML = `🤖 ${rec.join('<br>🤖 ')}`;
+
+      } catch (e) {
+        console.error("Ошибка загрузки дашборда:", e);
+        document.getElementById('kpi-revenue').innerText = '— ₸';
+        document.getElementById('ai-recommendations').innerHTML = "⚠️ Не удалось загрузить AI-сигналы. Проверьте endpoint /api/stats";
+      }
+    }
+
+    // Загрузка последних заказов (как mini-CRM)
+    async function loadOrders() {
+      const container = document.getElementById('orders-list');
+      try {
+        const res = await fetch('/api/orders'); // если эндпоинт готов — вернет массив
+        if (!res.ok) throw new Error('API orders not ready');
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = '<div class="order-row" style="justify-content: center; color: var(--muted);">Нет заказов для отображения</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        data.slice(0, 10).forEach(order => {
+          const div = document.createElement('div');
+          div.className = 'order-row';
+          div.innerHTML = `
+            <span class="order-id">#${order.crm_id || order.id || '—'}</span>
+            <span class="order-sum">${Number(order.total_sum || 0).toLocaleString('ru-RU')} ₸</span>
+            <span class="order-name">${order.first_name || order.client_name || 'Аноним'}</span>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.warn("loadOrders не удалась (возможно /api/orders ещё не реализован):", err);
+        container.innerHTML = `
+          <div class="order-row" style="justify-content: center; color: var(--muted); flex-direction: column; gap: 8px;">
+            <span>📦 Данные заказов появятся после настройки эндпоинта <code style="background:#1a2535; padding:2px 6px; border-radius:4px;">/api/orders</code></span>
+            <span style="font-size:0.7rem;">Совет: добавь список заказов из RetailCRM или Supabase</span>
+          </div>
+        `;
+      }
+    }
+
+    // Запускаем всё сразу и обновляем KPI каждые 30 секунд
+    loadDashboard();
+    loadOrders();
+    setInterval(loadDashboard, 30000);
+  </script>
+</body>
+</html>
